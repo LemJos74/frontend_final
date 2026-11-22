@@ -1,0 +1,95 @@
+<div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+  <h1 class="mb-0">Nuevo reporte</h1>
+  <a class="btn btn-outline-secondary" routerLink="/ciudadano/reportes">Mis reportes</a>
+</div>
+
+@if (catalogLoading()) {
+  <p role="status" class="surface">Cargando distritos y categorías…</p>
+} @else if (catalogError()) {
+  <div class="alert alert-danger" role="alert">{{ catalogError() }}</div>
+  <button type="button" class="btn btn-outline-secondary" (click)="loadCatalogs()">Reintentar</button>
+} @else {
+  @if (error()) { <p class="alert alert-danger" role="alert">{{ error() }}</p> }
+  <form novalidate (submit)="save($event)">
+    <fieldset [disabled]="busy()">
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <section class="surface h-100" aria-labelledby="report-data">
+            <h2 id="report-data">Datos de la incidencia</h2>
+            <div class="mb-3">
+              <label class="form-label" for="district">Distrito</label>
+              <select id="district" class="form-select" [formField]="fields.distrito_id" aria-describedby="district-error">
+                <option value="">Selecciona un distrito</option>
+                @for (district of districts(); track district.id) {
+                  <option [value]="district.id.toString()">{{ district.nombre }}</option>
+                }
+              </select>
+              <app-field-errors errorId="district-error" [errors]="fields.distrito_id().errors()" [visible]="attempted() || fields.distrito_id().touched()" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="category">Categoría</label>
+              <select id="category" class="form-select" [formField]="fields.tipo_id" aria-describedby="category-error">
+                <option value="">Selecciona una categoría</option>
+                @for (type of types(); track type.id) {
+                  <option [value]="type.id.toString()">{{ type.nombre }}</option>
+                }
+              </select>
+              <app-field-errors errorId="category-error" [errors]="fields.tipo_id().errors()" [visible]="attempted() || fields.tipo_id().touched()" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="description">Descripción</label>
+              <textarea id="description" class="form-control" rows="5" [formField]="fields.descripcion" aria-describedby="description-error"></textarea>
+              <app-field-errors errorId="description-error" [errors]="fields.descripcion().errors()" [visible]="attempted() || fields.descripcion().touched()" />
+            </div>
+            <div>
+              <label class="form-label" for="location">Dirección o referencia</label>
+              <input id="location" class="form-control" type="text" [formField]="fields.ubicacion" aria-describedby="location-error">
+              <app-field-errors errorId="location-error" [errors]="fields.ubicacion().errors()" [visible]="attempted() || fields.ubicacion().touched()" />
+            </div>
+          </section>
+        </div>
+        <div class="col-lg-7">
+          <section class="surface h-100" aria-labelledby="report-map">
+            <h2 id="report-map">Ubicación en el mapa</h2>
+            <p class="text-secondary">Marca el punto de la incidencia o escribe sus coordenadas.</p>
+            <app-location-picker [point]="selected()" (pointChange)="selectLocation($event)" />
+            <div class="row g-2 mt-2">
+              <div class="col-sm">
+                <label class="form-label" for="latitude">Latitud</label>
+                <input id="latitude" class="form-control" type="text" [formField]="fields.latitud" aria-describedby="latitude-error">
+                <app-field-errors errorId="latitude-error" [errors]="fields.latitud().errors()" [visible]="attempted() || fields.latitud().touched()" />
+              </div>
+              <div class="col-sm">
+                <label class="form-label" for="longitude">Longitud</label>
+                <input id="longitude" class="form-control" type="text" [formField]="fields.longitud" aria-describedby="longitude-error">
+                <app-field-errors errorId="longitude-error" [errors]="fields.longitud().errors()" [visible]="attempted() || fields.longitud().touched()" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <section class="surface mt-4" aria-labelledby="new-report-photo">
+        <h2 id="new-report-photo">Fotografía opcional</h2>
+        <label class="form-label" for="report-photo-input">Adjuntar una imagen</label>
+        <input #photoInput id="report-photo-input" class="form-control" type="file"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          [class.is-invalid]="fields.fotografia().invalid()"
+          aria-describedby="report-photo-hint report-photo-error" (change)="changePhoto(photoInput)">
+        <p id="report-photo-hint" class="form-text mb-0">JPEG, PNG o WebP estático. Hasta 5 MiB y 24 millones de píxeles.</p>
+        <app-field-errors errorId="report-photo-error" [errors]="fields.fotografia().errors()" [visible]="!!photoFile()" />
+        @if (photoPending()) {
+          <p class="mt-2 mb-0" role="status">Verificando fotografía…</p>
+        }
+        @if (photoPreview(); as preview) {
+          <img class="d-block img-fluid rounded border mt-3" style="max-height: 16rem" [src]="preview" alt="Vista previa de la fotografía seleccionada">
+        }
+        @if (photoFile()) {
+          <button type="button" class="btn btn-outline-secondary mt-3" (click)="removePhoto(photoInput)">Quitar fotografía</button>
+        }
+      </section>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="busy() || photoPending()">{{ busy() ? 'Registrando…' : 'Registrar reporte' }}</button>
+      </div>
+    </fieldset>
+  </form>
+}

@@ -1,0 +1,99 @@
+<h1>Reportes ciudadanos</h1>
+<section class="surface mb-3" aria-labelledby="admin-report-filters">
+  <h2 id="admin-report-filters">Filtros</h2>
+  @if (options(); as catalog) {
+    <form novalidate (submit)="apply($event)">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label for="admin-filter-state" class="form-label">Estado</label>
+          <select id="admin-filter-state" class="form-select" [formField]="filters.estado_id">
+            <option value="">Todos los estados</option>
+            @for (state of catalog.states; track state.id) {
+              <option [value]="state.id.toString()">{{ state.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label for="admin-filter-district" class="form-label">Distrito</label>
+          <select id="admin-filter-district" class="form-select" [formField]="filters.distrito_id">
+            <option value="">Todos los distritos</option>
+            @for (district of catalog.districts; track district.id) {
+              <option [value]="district.id.toString()">{{ district.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label for="admin-filter-type" class="form-label">Categoría</label>
+          <select id="admin-filter-type" class="form-select" [formField]="filters.tipo_id">
+            <option value="">Todas las categorías</option>
+            @for (type of catalog.types; track type.id) {
+              <option [value]="type.id.toString()">{{ type.nombre }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <fieldset class="mt-3">
+        <legend class="form-label fs-6 mb-1">Fecha de registro</legend>
+        <p class="form-text mb-2" id="admin-report-date-zone">Hora de Lima. Las fechas seleccionadas se incluyen completas.</p>
+        <div class="row g-3">
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="admin-filter-from">Desde</label>
+            <input id="admin-filter-from" type="date" class="form-control" [formField]="filters.fecha_desde"
+              min="0001-01-01" max="9999-12-31" aria-describedby="admin-report-date-zone admin-filter-from-error"
+              [class.is-invalid]="(attempted() || filters.fecha_desde().touched()) && filters.fecha_desde().invalid()">
+            <app-field-errors errorId="admin-filter-from-error" [errors]="filters.fecha_desde().errors()"
+              [visible]="attempted() || filters.fecha_desde().touched()" />
+          </div>
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="admin-filter-until">Hasta</label>
+            <input id="admin-filter-until" type="date" class="form-control" [formField]="filters.fecha_hasta"
+              min="0001-01-01" max="9999-12-31" aria-describedby="admin-report-date-zone admin-filter-until-error"
+              [class.is-invalid]="(attempted() || filters.fecha_hasta().touched()) && filters.fecha_hasta().invalid()">
+            <app-field-errors errorId="admin-filter-until-error" [errors]="filters.fecha_hasta().errors()"
+              [visible]="attempted() || filters.fecha_hasta().touched()" />
+          </div>
+        </div>
+      </fieldset>
+      <div class="d-grid d-sm-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary" [disabled]="loading()">Aplicar filtros</button>
+        <button type="button" class="btn btn-outline-secondary" [disabled]="loading()" (click)="clear()">Limpiar</button>
+      </div>
+    </form>
+  } @else if (catalogError()) {
+    <p class="alert alert-warning" role="alert">{{ catalogError() }}</p>
+    <button type="button" class="btn btn-outline-secondary" (click)="loadCatalogs()">Reintentar filtros</button>
+  } @else {
+    <p role="status" class="mb-0">Cargando filtros…</p>
+  }
+</section>
+
+@if (loading()) {
+  <p class="surface" role="status">Cargando reportes…</p>
+} @else if (error()) {
+  <p class="alert alert-danger" role="alert">{{ error() }}</p>
+  <button type="button" class="btn btn-outline-secondary" (click)="load(page())">Reintentar</button>
+} @else if (!reports().length) {
+  <p class="surface">No se encontraron reportes para esta consulta.</p>
+} @else {
+  <ul aria-label="Reportes registrados" class="list-unstyled d-grid gap-2 mb-0">
+    @for (report of reports(); track report.id) {
+      <li class="surface admin-report-row report-link-card position-relative p-3">
+        <div>
+          <a class="fw-semibold stretched-link link-offset-2" [routerLink]="['/admin/reportes', report.id]">Reporte #{{ report.id }}</a>
+          <p class="mb-0">{{ report.tipo_nombre }}</p>
+        </div>
+        <div><span class="report-label">Distrito</span>{{ report.distrito_nombre }}</div>
+        <div><span class="report-label">Ciudadano</span>{{ report.usuario_nombre }}</div>
+        <div><span class="report-label">Fecha</span>{{ formatCreatedAt(report.created_at) }}</div>
+        <div><span class="report-label">Estado</span><app-report-status [name]="report.estado_nombre" /></div>
+      </li>
+    }
+  </ul>
+}
+@if (!loading() && !error() && (page() || hasNext())) {
+  <nav aria-label="Páginas de reportes" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="page() === 0" (click)="load(page() - 1)">Anterior</button>
+    <span>Página {{ page() + 1 }}</span>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="!hasNext()" (click)="load(page() + 1)">Siguiente</button>
+  </nav>
+}

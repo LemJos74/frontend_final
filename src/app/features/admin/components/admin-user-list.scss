@@ -1,0 +1,26 @@
+.user-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  align-items: center;
+}
+
+.user-identity, .user-action { grid-column: 1 / -1; }
+.user-label { display: block; font-size: .875rem; color: var(--bs-secondary-color); }
+.user-action .btn { width: 100%; }
+
+.user-dialog {
+  color: var(--ink);
+  width: min(30rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+}
+
+.user-dialog::backdrop { background: rgb(10 28 22 / 56%); }
+
+@media (min-width: 768px) {
+  .user-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .7fr) minmax(0, 1fr); }
+  .user-identity, .user-action { grid-column: auto; }
+  .user-action { text-align: end; }
+  .user-action .btn { width: auto; }
+}

@@ -1,0 +1,22 @@
+.workspace-nav .profile-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding-inline: .55rem;
+  border-radius: .25rem;
+}
+
+.workspace-nav .profile-link.active {
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+  text-decoration: underline;
+  text-underline-offset: .3rem;
+}
+
+@media (max-width: 767.98px) {
+  .workspace-nav { width: 100%; flex-direction: column; align-items: stretch; }
+  .workspace-nav .profile-link { padding-inline: .75rem; background: rgb(255 255 255 / 7%); }
+}
+
+.workspace-nav .profile-link:focus-visible { outline: 2px solid #d4edbe; outline-offset: 2px; }

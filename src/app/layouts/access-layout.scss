@@ -1,0 +1,17 @@
+.access-layout { min-height: 100vh; display: grid; grid-template-columns: minmax(16rem, 37%) minmax(0, 1fr); }
+.access-aside {
+  background: radial-gradient(ellipse at 10% 100%, #2e7051, transparent 70%), var(--forest);
+  color: #fff; padding: clamp(1.5rem, 6vw, 5rem);
+  display: flex; flex-direction: column; justify-content: space-between; gap: 2rem;
+}
+.access-aside p { font-size: clamp(1rem, 2.5vw, 1.7rem); max-width: 23ch; margin: 0; color: #e3f2e7; }
+.access-body { display: grid; place-items: center; padding: clamp(1rem, 4vw, 3rem); }
+.access-card { background: #fff; padding: clamp(1.25rem, 3vw, 2.25rem); border: 1px solid var(--line); border-radius: 1.25rem; }
+.access-card { width: min(100%, 30rem); box-shadow: 0 12px 40px rgb(18 60 48 / 8%); }
+
+@media (max-width: 767.98px) {
+  .access-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .access-aside { gap: .75rem; }
+  .access-aside p { max-width: none; }
+  .access-body { align-items: start; }
+}

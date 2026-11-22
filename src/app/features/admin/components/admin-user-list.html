@@ -1,0 +1,104 @@
+<h1>Usuarios</h1>
+
+<section class="surface mb-3" aria-labelledby="user-filters-title">
+  <h2 id="user-filters-title">Filtros</h2>
+  <form novalidate (submit)="apply($event)">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label" for="user-search">Nombre o correo</label>
+        <input id="user-search" type="search" class="form-control" [formField]="filters.busqueda"
+          autocomplete="off" aria-describedby="user-search-error">
+        <app-field-errors errorId="user-search-error" [errors]="filters.busqueda().errors()"
+          [visible]="attempted() || filters.busqueda().touched()" />
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label" for="user-role">Rol</label>
+        <select id="user-role" class="form-select" [formField]="filters.rol">
+          <option value="">Todos los roles</option>
+          <option value="Ciudadano">Ciudadano</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label" for="user-activity">Actividad</label>
+        <select id="user-activity" class="form-select" [formField]="filters.activo">
+          <option value="">Todas las cuentas</option>
+          <option value="true">Activas</option>
+          <option value="false">Inactivas</option>
+        </select>
+      </div>
+    </div>
+    <div class="d-grid d-sm-flex gap-2 mt-3">
+      <button type="submit" class="btn btn-primary" [disabled]="loading()">Buscar</button>
+      <button type="button" class="btn btn-outline-secondary" [disabled]="loading()" (click)="clear()">Limpiar</button>
+    </div>
+  </form>
+</section>
+
+@if (success()) {
+  <p class="alert alert-success" role="status">{{ success() }}</p>
+}
+@if (loading()) {
+  <p class="surface" role="status">Cargando usuarios…</p>
+} @else if (error()) {
+  <p class="alert alert-danger" role="alert">{{ error() }}</p>
+  <button type="button" class="btn btn-outline-secondary" (click)="load(page())">Reintentar</button>
+} @else if (users().length === 0) {
+  <p class="surface">No se encontraron usuarios para esta búsqueda.</p>
+} @else {
+  <ul class="list-unstyled d-grid gap-2 mb-0" aria-label="Usuarios registrados">
+    @for (user of users(); track user.id) {
+      <li class="surface user-row p-3">
+        <div class="user-identity">
+          <p class="fw-semibold mb-1">{{ user.nombre }}</p>
+          <p class="text-secondary mb-0">{{ user.email }}</p>
+        </div>
+        <div>
+          <span class="user-label">Rol</span>
+          <span>{{ user.rol }}</span>
+        </div>
+        <div>
+          <span class="user-label">Estado</span>
+          <span class="badge rounded-pill" [class]="user.activo ? 'text-bg-success' : 'text-bg-secondary'">
+            {{ user.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="user-action">
+          @if (isSelf(user)) {
+            <span class="text-secondary">Tu cuenta</span>
+          } @else {
+            <button type="button" class="btn" [class]="user.activo ? 'btn-outline-danger' : 'btn-outline-success'"
+              [attr.aria-label]="(user.activo ? 'Desactivar a ' : 'Activar a ') + user.nombre"
+              (click)="requestChange(user)">
+              {{ user.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+@if (!loading() && !error() && (page() || hasNext())) {
+  <nav aria-label="Páginas de usuarios" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="page() === 0" (click)="load(page() - 1)">Anterior</button>
+    <span>Página {{ page() + 1 }}</span>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="!hasNext()" (click)="load(page() + 1)">Siguiente</button>
+  </nav>
+}
+
+<dialog #confirmation class="user-dialog surface" aria-labelledby="user-dialog-title" aria-describedby="user-dialog-description"
+  (cancel)="close($event)">
+  <h2 id="user-dialog-title">Confirmar cambio de estado</h2>
+  <p id="user-dialog-description">
+    ¿Quieres {{ target()?.activo ? 'desactivar' : 'activar' }} la cuenta de <strong>{{ target()?.nombre }}</strong>?
+  </p>
+  @if (changeError()) {
+    <p class="alert alert-danger" role="alert">{{ changeError() }}</p>
+  }
+  <div class="d-grid d-sm-flex justify-content-sm-end gap-2">
+    <button autofocus type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="close()">Cancelar</button>
+    <button type="button" class="btn" [class]="target()?.activo ? 'btn-danger' : 'btn-primary'" [disabled]="saving()" (click)="confirm()">
+      {{ saving() ? 'Guardando…' : 'Confirmar' }}
+    </button>
+  </div>
+</dialog>

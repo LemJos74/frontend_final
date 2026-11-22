@@ -1,0 +1,14 @@
+.admin-report-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-report-row > :first-child { grid-column: 1 / -1; }
+.report-label { display: block; color: var(--bs-secondary-color); font-size: .875rem; }
+
+@media (min-width: 992px) {
+  .admin-report-row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, .8fr) minmax(0, .9fr); }
+  .admin-report-row > :first-child { grid-column: auto; }
+}

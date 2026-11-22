@@ -1,0 +1,45 @@
+:root {
+  --forest: #123c30;
+  --leaf: #236b50;
+  --ink: #162a22;
+  --canvas: #f2f6f3;
+  --line: #d6e3dc;
+  --bs-link-color-rgb: 35, 107, 80;
+  --bs-link-hover-color-rgb: 18, 60, 48;
+}
+
+body { background: var(--canvas); color: var(--ink); min-height: 100vh; }
+h1 { font-size: clamp(1.85rem, 4vw, 2.4rem); font-weight: 750; letter-spacing: -.035em; margin-bottom: 1.25rem; }
+h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.1rem; }
+.form-control { border-color: #aabdb2; min-height: 2.75rem; }
+.form-control:focus { border-color: var(--leaf); box-shadow: 0 0 0 .2rem rgb(35 107 80 / 20%); }
+.form-label { font-weight: 600; }
+.btn { min-height: 2.75rem; font-weight: 600; }
+.btn-primary {
+  --bs-btn-bg: #236b50;
+  --bs-btn-border-color: #236b50;
+  --bs-btn-hover-bg: #184d39;
+  --bs-btn-hover-border-color: #184d39;
+  --bs-btn-active-bg: #123c30;
+  --bs-btn-active-border-color: #123c30;
+  --bs-btn-disabled-bg: #236b50;
+  --bs-btn-disabled-border-color: #236b50;
+  --bs-btn-focus-shadow-rgb: 35, 107, 80;
+}
+.brand { display: inline-flex; align-items: center; gap: .7rem; font-size: 1.2rem; font-weight: 750; }
+.brand-icon { display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; background: #d4edbe; color: var(--forest); border-radius: .75rem; }
+.brand-icon .bi-leaf {
+  width: 1.2rem; height: 1.2rem; background: currentColor;
+  mask: url('../node_modules/bootstrap-icons/icons/leaf.svg') center / contain no-repeat;
+}
+.surface { min-width: 0; overflow-wrap: anywhere; background: #fff; padding: clamp(1.25rem, 3vw, 2.25rem); border: 1px solid var(--line); border-radius: 1.25rem; }
+.workspace-header { background: var(--forest); color: #fff; }
+.profile-link { color: #eef8f0; }
+.profile-link:hover, .profile-link:focus-visible { color: #fff; }
+.workspace-content { max-width: 70rem; }
+.workspace-role { color: var(--leaf); font-weight: 700; margin-bottom: .3rem; }
+dt { font-weight: 650; }
+dd { color: #47584f; margin-bottom: 1rem; }
+
+.report-link-card:hover { border-color: #7eaa94; }
+.report-link-card:focus-within { outline: 3px solid var(--leaf); outline-offset: 2px; }

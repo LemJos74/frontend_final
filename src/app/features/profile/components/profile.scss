@@ -1,0 +1,14 @@
+.profile-avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #d4edbe;
+  color: var(--forest);
+  font-weight: 750;
+}
+
+.profile-card { border-top: .25rem solid #d6e3dc; }
+.profile-role { background-color: #e1f3e6; color: var(--forest); }
