@@ -6,7 +6,7 @@ Aplicación Angular 22 con TypeScript, SCSS, Signal Forms, Bootstrap 5 y Leaflet
 
 Desde la raíz del frontend, ejecuta `npm ci` y `npm start`. En otra terminal, desde la raíz del backend, ejecuta `uv run uvicorn backend.main:app --reload`. Abre http://localhost:4200. El proxy de desarrollo envía `/api` a `http://127.0.0.1:8000`.
 
-El login dirige a `/ciudadano/reportes` o a `/admin/dashboard` según el perfil de la API. La sesión se conserva durante la vida de la pestaña y se elimina al cerrar sesión. `npm run build` compila una versión que conserva las rutas de API relativas.
+El login dirige a `/ciudadano/reportes` o a `/admin/dashboard` según el perfil de la API. La sesión se conserva durante la vida de la pestaña y se elimina al cerrar sesión. El proxy se usa con `npm start`. El build de producción requiere `API_BASE_URL`.
 
 ## Render Static Site
 
@@ -15,7 +15,7 @@ Conecta el repositorio de este frontend desde Render. [Configuración de Static 
 | Campo | Valor |
 | --- | --- |
 | Root Directory | Raíz del repositorio |
-| Build Command | `npm ci && npm run build:render` |
+| Build Command | `npm ci && npm run build` |
 | Publish Directory | `dist/frontend-final/browser` |
 | Redirects/Rewrites | Rewrite de `/*` a `/index.html` |
 | `NODE_VERSION` | `24.21.0` |
@@ -28,5 +28,5 @@ Para reproducir el build en PowerShell, asigna primero `API_BASE_URL` en la term
 
 ```powershell
 $env:API_BASE_URL = 'https://api.ejemplo.invalid'
-npm run build:render
+npm run build
 ```

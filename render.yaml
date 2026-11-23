@@ -2,7 +2,7 @@ services:
   - type: web
     name: limpiahuancayo-web
     runtime: static
-    buildCommand: npm ci && npm run build:render
+    buildCommand: npm ci && npm run build
     staticPublishPath: ./dist/frontend-final/browser
     envVars:
       - key: NODE_VERSION
