@@ -12,7 +12,11 @@ export const requireRole = (role: Role): CanActivateChildFn => async () => {
 
   if (!session.token()) return login;
   try {
-    const profile = await auth.loadProfile();
+    // Reutiliza el perfil validado solo en la navegación que inicia el login.
+    const verified = auth.profile();
+    const profile = verified && router.currentNavigation()?.extras.info === verified
+      ? verified
+      : await auth.loadProfile();
     return profile.rol === role ? true : router.parseUrl(landingPath(profile.rol));
   } catch {
     return login;

@@ -56,7 +56,7 @@ export class Login {
     const { email, password } = this.credentials();
     try {
       const profile = await this.auth.login({ email: email.trim(), password });
-      await this.router.navigateByUrl(landingPath(profile.rol), { replaceUrl: true });
+      await this.router.navigateByUrl(landingPath(profile.rol), { replaceUrl: true, info: profile });
     } catch (error) {
       this.error.set(apiError(error, 'No se pudo iniciar sesión.'));
     } finally {

@@ -38,15 +38,15 @@ export class LeafletMapHost {
 
   private async initialize(): Promise<void> {
     try {
-      const leaflet = await import('leaflet');
+      const { default: leaflet } = await import('leaflet');
       if (this.destruction.destroyed) return;
       const map = leaflet.map(this.canvas().nativeElement, { scrollWheelZoom: false }).setView(huancayo, 14);
       this.map = map;
+      this.mapReady.emit({ leaflet, map });
       leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).on('tileerror', () => this.warning.set(this.tilesErrorText())).addTo(map);
-      this.mapReady.emit({ leaflet, map });
     } catch {
       if (!this.destruction.destroyed) this.warning.set(this.unavailableText());
     } finally {
