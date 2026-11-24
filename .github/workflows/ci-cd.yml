@@ -1,0 +1,94 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Solicitar despliegue a Render después de CI
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  ci:
+    name: Validar frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      CI: 'true'
+      NG_CLI_ANALYTICS: 'false'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm exec -- tsc --noEmit -p tsconfig.app.json
+      - name: Ejecutar pruebas disponibles
+        run: npm test --if-present
+      - name: Compilar para producción
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: npm run build
+
+  deploy:
+    name: Solicitar despliegue en Render
+    needs: ci
+    if: >-
+      github.ref == 'refs/heads/master' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.deploy))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    concurrency:
+      group: frontend-render-production
+      cancel-in-progress: false
+    steps:
+      - name: Comprobar que el SHA validado sigue en master
+        id: revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          master_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/master" --jq '.object.sha')
+          if [[ "$master_sha" == "$GITHUB_SHA" ]]; then
+            echo 'current=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'Se omite el despliegue porque master avanzó desde esta ejecución.'
+          fi
+
+      - name: Enviar el SHA validado al Deploy Hook
+        if: steps.revision.outputs.current == 'true'
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [[ -z "$RENDER_DEPLOY_HOOK" ]]; then
+            echo 'Falta el secreto RENDER_DEPLOY_HOOK.' >&2
+            exit 1
+          fi
+
+          status=$(curl --disable --silent --proto '=https' --max-time 30 \
+            --request POST --url-query "ref=$GITHUB_SHA" \
+            --output /dev/null --write-out '%{http_code}' --url "$RENDER_DEPLOY_HOOK") || {
+            echo 'No se pudo contactar con Render.' >&2
+            exit 1
+          }
+
+          case "$status" in
+            200|202) echo "Render aceptó la solicitud para $GITHUB_SHA (HTTP $status)." ;;
+            *) echo "Render rechazó la solicitud (HTTP $status)." >&2; exit 1 ;;
+          esac
